@@ -85,11 +85,6 @@ int main() {
 
 	CFRelease(paths_to_watch);
 
-    /* FSEventStreamScheduleWithRunLoop( */
-	/* 	stream, */
-	/* 	CFRunLoopGetCurrent(), */
-	/* 	kCFRunLoopDefaultMode */
-    /* ); */
 	FSEventStreamSetDispatchQueue(stream, dispatch_get_main_queue());
 
 	Boolean is_started = FSEventStreamStart(stream);
