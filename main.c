@@ -2,6 +2,8 @@
 #include <sys/stat.h>
 #include <sysexits.h>
 
+static const char *kChromePolicyPath = "private/tmp/fsevents-test/com.google.Chrome.plist";
+
 void fsevents_callback(
 	ConstFSEventStreamRef stream_ref,
 	void *client_call_back_info,
@@ -18,6 +20,13 @@ void fsevents_callback(
 	for (int i = 0; i < num_events; i++) {
 		/* flags are unsigned long, IDs are uint64_t */
 		printf("Change %llu in %s, flags %u\n", event_ids[i], paths[i], event_flags[i]);
+
+		if (
+			strncmp(paths[i], kChromePolicyPath, strlen(kChromePolicyPath)) == 0
+			&& event_flags[i] & kFSEventStreamEventFlagItemRemoved
+		) {
+			printf("removed policy file\n");
+		}
 	}
 
 	fflush(stdout);
