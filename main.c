@@ -87,8 +87,7 @@ int main() {
 		paths_to_watch,
 		kFSEventStreamEventIdSinceNow,
 		latency,
-		kFSEventStreamCreateFlagFileEvents
-		/* kFSEventStreamCreateFlagNone */ /* kFSEventStreamCreateFlagUseCFTypes */
+		kFSEventStreamCreateFlagFileEvents | kFSEventStreamCreateFlagIgnoreSelf
 	);
 
 	CFRelease(paths_to_watch);
