@@ -16,8 +16,8 @@ static const char *kChromePolicyPlistContents = "<?xml version=\"1.0\" encoding=
 void write_policy_file() {
 	FILE *f = fopen("/private/tmp/fsevents-test/com.google.Chrome.plist", "w");
 	if (f == NULL) {
-		fprintf(stderr, "error: cannot open file TODO(path)");
-		exit(EX_UNAVAILABLE);
+		fprintf(stderr, "error: cannot open file %s\n", kChromePolicyPath);
+		exit(EX_IOERR);
 	}
 
 	fprintf(f, "%s", kChromePolicyPlistContents);
@@ -49,7 +49,8 @@ dev_t device_for_path(const char *path) {
 	struct stat st;
 	int err = lstat(path, &st);
 	if (err != noErr) {
-		printf("TODO exit '%s': %d ; %d\n", path, err, st.st_dev);
+		fprintf(stderr, "error: cannot stat '%s'\n", path);
+		exit(EX_IOERR);
 	}
 
 	return st.st_dev;
@@ -93,7 +94,7 @@ int main() {
 
 	Boolean is_started = FSEventStreamStart(stream);
 	if (!is_started) {
-		printf("error: FSEvents stream failed to start\n");
+		fprintf(stderr, "error: FSEvents stream failed to start\n");
 		return EX_UNAVAILABLE;
 	}
 
