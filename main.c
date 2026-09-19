@@ -3,6 +3,27 @@
 #include <sysexits.h>
 
 static const char *kChromePolicyPath = "private/tmp/fsevents-test/com.google.Chrome.plist";
+static const char *kChromePolicyPlistContents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n\
+<plist version=\"1.0\">\n\
+<dict>\n\
+	<key>EnterpriseProfileBadgeToolbarSettings</key>\n\
+	<integer>1</integer>\n\
+</dict>\n\
+</plist>\n\
+";
+
+void write_policy_file() {
+	FILE *f = fopen("/private/tmp/com.google.Chrome.plist", "w");
+	if (f == NULL) {
+		fprintf(stderr, "error: cannot open file TODO(path)");
+		exit(EX_UNAVAILABLE);
+	}
+
+	fprintf(f, "%s", kChromePolicyPlistContents);
+
+	fclose(f);
+}
 
 void fsevents_callback(
 	ConstFSEventStreamRef stream_ref,
@@ -43,6 +64,8 @@ dev_t device_for_path(const char *path) {
 }
 
 int main() {
+	write_policy_file();
+
 	FSEventStreamContext context = {
 		.version = 0,
 		.info = NULL,
