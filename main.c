@@ -14,7 +14,7 @@ static const char *kChromePolicyPlistContents = "<?xml version=\"1.0\" encoding=
 ";
 
 void write_policy_file() {
-	FILE *f = fopen("/private/tmp/com.google.Chrome.plist", "w");
+	FILE *f = fopen("/private/tmp/fsevents-test/com.google.Chrome.plist", "w");
 	if (f == NULL) {
 		fprintf(stderr, "error: cannot open file TODO(path)");
 		exit(EX_UNAVAILABLE);
@@ -33,24 +33,16 @@ void fsevents_callback(
 	const FSEventStreamEventFlags event_flags[],
 	const FSEventStreamEventId event_ids[]
 ) {
-/* kFSEventStreamEventFlagItemRemoved */
-
 	char **paths = event_paths;
 
-	printf("Callback called\n");
 	for (int i = 0; i < num_events; i++) {
-		/* flags are unsigned long, IDs are uint64_t */
-		printf("Change %llu in %s, flags %u\n", event_ids[i], paths[i], event_flags[i]);
-
 		if (
 			strncmp(paths[i], kChromePolicyPath, strlen(kChromePolicyPath)) == 0
 			&& event_flags[i] & kFSEventStreamEventFlagItemRemoved
 		) {
-			printf("removed policy file\n");
+			write_policy_file();
 		}
 	}
-
-	fflush(stdout);
 }
 
 dev_t device_for_path(const char *path) {
