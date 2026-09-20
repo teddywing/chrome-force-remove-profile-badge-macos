@@ -19,6 +19,8 @@
 #include <sysexits.h>
 #include <unistd.h>
 
+static const char *kVersion = "0.0.1";
+
 static const char *kManagedPreferencesPath = "/Library/Managed Preferences";
 static const char *kChromePolicyFilename = "com.google.Chrome.plist";
 static const char *kChromePolicyPlistContents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
@@ -170,7 +172,19 @@ dev_t device_for_path(const char *path) {
 
 // Write the Chrome policy plist on launch, and start an FSEventStream to
 // detect when the file disappears, and write it again at that point.
-int main() {
+int main(int argc, const char *argv[]) {
+	if (
+		argc == 2
+		&&
+		(
+			strncmp(argv[1], "-V", 2) == 0
+			|| strncmp(argv[1], "--version", 9) == 0
+		)
+	) {
+		puts(kVersion);
+		return EXIT_SUCCESS;
+	}
+
 	// Build the "Managed Preferences" directory path.
 	char managed_preferences_path[MAXPATHLEN];
 	managed_preferences_user_path(managed_preferences_path, MAXPATHLEN);
