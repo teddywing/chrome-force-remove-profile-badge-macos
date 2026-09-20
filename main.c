@@ -109,6 +109,8 @@ void write_policy_file(char *path) {
 	fclose(f);
 }
 
+// If the "com.google.Chrome.plist" Managed Preferences file is removed, write
+// it again.
 void fsevents_callback(
 	ConstFSEventStreamRef stream_ref,
 	void *client_call_back_info,
@@ -137,6 +139,8 @@ void fsevents_callback(
 	}
 }
 
+// Get the device that contains `path` for use in
+// FSEventStreamCreateRelativeToDevice.
 dev_t device_for_path(const char *path) {
 	struct stat st;
 	int err = lstat(path, &st);
@@ -149,16 +153,19 @@ dev_t device_for_path(const char *path) {
 }
 
 int main() {
+	// Build the "Managed Preferences" directory path.
 	char managed_preferences_path[MAXPATHLEN];
 	managed_preferences_user_path(managed_preferences_path, MAXPATHLEN);
 	char *managed_preferences_device_relative_path = managed_preferences_path + 1;
 
+	// Build the Chrome policy plist absolute path.
 	char policy_path[MAXPATHLEN];
 	strncpy(policy_path, managed_preferences_path, strlen(managed_preferences_path));
 	chrome_policy_path(policy_path, MAXPATHLEN);
 	managed_preferences_chrome_policy_path = policy_path;
 	managed_preferences_chrome_policy_device_relative_path = policy_path + 1;
 
+	// Ensure the Chrome policy plist file is written and present.
 	write_policy_file(managed_preferences_chrome_policy_path);
 
 	FSEventStreamContext context = {
