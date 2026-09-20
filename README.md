@@ -21,9 +21,9 @@ badge can still be removed by setting the
 [EnterpriseProfileBadgeToolbarSettings] enterprise policy to `1`.
 
 Enterprise policies can be configured locally by OS administrators. On Windows,
-this is done in the [Windows Registry]. On Mac OS, machine-local policies are
-set using a plist file stored in
-`/Library/Managed Preferences/<username>/com.google.Chrome.plist`.
+this is [done in the Windows Registry][Windows Registry]. On Mac OS,
+machine-local policies are set using a plist file stored in `/Library/Managed
+Preferences/<username>/com.google.Chrome.plist`.
 
 To remove the badge, we can write the plist into the correct location. For
 organisations that do not configure this file via their MDM, the file does get
