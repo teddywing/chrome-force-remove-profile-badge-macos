@@ -1,0 +1,46 @@
+.TH "CHROME\-FORCE\-REMOVE\-PROFILE\-BADGE\-MACOS" "1" "09/20/2026" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+chrome-force-remove-profile-badge-macos \- Force MDM policy
+EnterpriseProfileBadgeToolbarSettings in Google Chrome
+.SH "SYNOPSIS"
+.sp
+chrome\-force\-remove\-profile\-badge\-macos\-list
+.SH "DESCRIPTION"
+.sp
+A daemon that ensures an MDM plist is always present to force Google
+Chrome to hide the enterprise profile badge using the
+EnterpriseProfileBadgeToolbarSettings policy.
+.PP
+At launch, the program writes a Google Chrome policy settings file to
+\fI/Library/Managed Preferences/<username>/com.google.Chrome.plist\fP.
+If that file is deleted or moved, it is written again to the same
+location.
+.PP
+More information about the EnterpriseProfileBadgeToolbarSettings
+policy can be found at
+https://chromeenterprise.google/policies/enterprise-profile-badge-toolbar-settings/.
+.SH "OPTIONS"
+.PP
+\-V, \-\-version
+.RS 4
+Print the program version\&.
+.RE
