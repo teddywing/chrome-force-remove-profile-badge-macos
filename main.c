@@ -1,8 +1,10 @@
 #include <CoreServices/CoreServices.h>
 #include <sys/stat.h>
 #include <sysexits.h>
+#include <unistd.h>
 
-static const char *kChromePolicyPath = "private/tmp/fsevents-test/com.google.Chrome.plist";
+static const char *kManagedPreferencesPath = "/Library/Managed Preferences";
+static const char *kChromePolicyFilename = "com.google.Chrome.plist";
 static const char *kChromePolicyPlistContents = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n\
 <plist version=\"1.0\">\n\
@@ -13,10 +15,90 @@ static const char *kChromePolicyPlistContents = "<?xml version=\"1.0\" encoding=
 </plist>\n\
 ";
 
-void write_policy_file() {
-	FILE *f = fopen("/private/tmp/fsevents-test/com.google.Chrome.plist", "w");
+// Example: "/Library/Managed Preferences/<username>/com.google.Chrome.plist"
+static char *managed_preferences_chrome_policy_path;
+
+// Example: "Library/Managed Preferences/<username>/com.google.Chrome.plist"
+static char *managed_preferences_chrome_policy_device_relative_path;
+
+void managed_preferences_user_path(char *path, size_t path_size) {
+	char *username = getlogin();
+
+	size_t length;
+
+	length = strlcat(path, kManagedPreferencesPath, path_size);
+	if (length >= path_size) {
+		fprintf(
+			stderr,
+			"error: error initialising Managed Preferences path '%s' (len=%zu dstsize=%zu)'\n",
+			kManagedPreferencesPath,
+			length,
+			path_size
+		);
+		exit(EX_SOFTWARE);
+	}
+
+	length = strlcat(path, "/", path_size);
+	if (length >= path_size) {
+		fprintf(
+			stderr,
+			"error: error building Managed Preferences path '%s' '%s' (len=%zu dstsize=%zu)'\n",
+			kManagedPreferencesPath,
+			"/",
+			length,
+			path_size
+		);
+		exit(EX_SOFTWARE);
+	}
+
+	length = strlcat(path, username, path_size);
+	if (length >= path_size) {
+		fprintf(
+			stderr,
+			"error: error building Managed Preferences path '%s' '%s' (len=%zu dstsize=%zu)'\n",
+			kManagedPreferencesPath,
+			username,
+			length,
+			path_size
+		);
+		exit(EX_SOFTWARE);
+	}
+}
+
+void chrome_policy_path(char *path, size_t path_size) {
+	size_t length;
+
+	length = strlcat(path, "/", path_size);
+	if (length >= path_size) {
+		fprintf(
+			stderr,
+			"error: error building Managed Preferences path '%s' '%s' (len=%zu dstsize=%zu)'\n",
+			kManagedPreferencesPath,
+			"/",
+			length,
+			path_size
+		);
+		exit(EX_SOFTWARE);
+	}
+
+	length = strlcat(path, kChromePolicyFilename, path_size);
+	if (length >= path_size) {
+		fprintf(
+			stderr,
+			"error: error building Managed Preferences path '%s' '%s' (len=%zu dstsize=%zu)'\n",
+			kManagedPreferencesPath,
+			kChromePolicyFilename,
+			length,
+			path_size
+		);
+		exit(EX_SOFTWARE);
+	}
+}
+
+void write_policy_file(char *path) {
+	FILE *f = fopen(path, "w");
 	if (f == NULL) {
-		fprintf(stderr, "error: cannot open file %s\n", kChromePolicyPath);
+		fprintf(stderr, "error: cannot open file %s\n", path);
 		exit(EX_IOERR);
 	}
 
@@ -24,6 +106,22 @@ void write_policy_file() {
 
 	fclose(f);
 }
+
+/* static void print_flags(FSEventStreamEventFlags flags) { */
+/* 	if (flags & kFSEventStreamEventFlagMustScanSubDirs) printf(" MustScanSubDirs"); */
+/* 	if (flags & kFSEventStreamEventFlagRootChanged)     printf(" RootChanged"); */
+/* 	if (flags & kFSEventStreamEventFlagItemCreated)     printf(" Created"); */
+/* 	if (flags & kFSEventStreamEventFlagItemRemoved)     printf(" Removed"); */
+/* 	if (flags & kFSEventStreamEventFlagItemRenamed)     printf(" Renamed"); */
+/* 	if (flags & kFSEventStreamEventFlagItemModified)    printf(" Modified"); */
+/* 	if (flags & kFSEventStreamEventFlagItemInodeMetaMod)  printf(" InodeMetaMod"); */
+/* 	if (flags & kFSEventStreamEventFlagItemFinderInfoMod) printf(" FinderInfoMod"); */
+/* 	if (flags & kFSEventStreamEventFlagItemChangeOwner) printf(" ChangeOwner"); */
+/* 	if (flags & kFSEventStreamEventFlagItemXattrMod)    printf(" XattrMod"); */
+/* 	if (flags & kFSEventStreamEventFlagItemIsFile)      printf(" IsFile"); */
+/* 	if (flags & kFSEventStreamEventFlagItemIsDir)       printf(" IsDir"); */
+/* 	if (flags & kFSEventStreamEventFlagItemIsSymlink)   printf(" IsSymlink"); */
+/* } */
 
 void fsevents_callback(
 	ConstFSEventStreamRef stream_ref,
@@ -36,11 +134,42 @@ void fsevents_callback(
 	char **paths = event_paths;
 
 	for (int i = 0; i < num_events; i++) {
+		/* printf("Change %llu in %s, flags %u\n", event_ids[i], paths[i], event_flags[i]); */
+		/* printf("xx %s\n", managed_preferences_chrome_policy_device_relative_path); */
+		/* print_flags(event_flags[i]); */
+		/* if ( */
+		/* 	strncmp( */
+		/* 		paths[i], */
+		/* 		managed_preferences_chrome_policy_device_relative_path, */
+		/* 		strlen(managed_preferences_chrome_policy_device_relative_path) */
+		/* 	) == 0 */
+		/* ) { */
+		/* 	puts("MATCHED"); */
+		/* } */
+		/* if ((event_flags[i] & kFSEventStreamEventFlagItemIsFile) */
+		/* 	&& ( */
+		/* 		(event_flags[i] & kFSEventStreamEventFlagItemRemoved) */
+		/* 		|| (event_flags[i] & kFSEventStreamEventFlagItemRenamed) */
+		/* 	) */
+		/* ) { */
+		/* 	puts("REMOVED++"); */
+		/* } */
 		if (
-			strncmp(paths[i], kChromePolicyPath, strlen(kChromePolicyPath)) == 0
-			&& event_flags[i] & kFSEventStreamEventFlagItemRemoved
+			strncmp(
+				paths[i],
+				managed_preferences_chrome_policy_device_relative_path,
+				strlen(managed_preferences_chrome_policy_device_relative_path)
+			) == 0
+			&& (event_flags[i] & kFSEventStreamEventFlagItemIsFile)
+			&& (
+				(event_flags[i] & kFSEventStreamEventFlagItemRemoved)
+				|| (event_flags[i] & kFSEventStreamEventFlagItemRenamed)
+			)
+/* kFSEventStreamEventFlagItemIsFile */
+/* kFSEventStreamEventFlagItemRenamed */
 		) {
-			write_policy_file();
+			printf("Remove %llu in %s, flags %u\n", event_ids[i], paths[i], event_flags[i]);
+			write_policy_file(managed_preferences_chrome_policy_path);
 		}
 	}
 }
@@ -57,7 +186,17 @@ dev_t device_for_path(const char *path) {
 }
 
 int main() {
-	write_policy_file();
+	char managed_preferences_path[MAXPATHLEN];
+	managed_preferences_user_path(managed_preferences_path, MAXPATHLEN);
+	char *managed_preferences_device_relative_path = managed_preferences_path + 1;
+
+	char policy_path[MAXPATHLEN];
+	strncpy(policy_path, managed_preferences_path, strlen(managed_preferences_path));
+	chrome_policy_path(policy_path, MAXPATHLEN);
+	managed_preferences_chrome_policy_path = policy_path;
+	managed_preferences_chrome_policy_device_relative_path = policy_path + 1;
+
+	write_policy_file(managed_preferences_chrome_policy_path);
 
 	FSEventStreamContext context = {
 		.version = 0,
@@ -66,12 +205,18 @@ int main() {
 		.release = NULL,
 		.copyDescription = NULL
 	};
-	// NOTE: Cannot use "/tmp/fsevents-test" as "/tmp" is a symlink.
-	CFStringRef path = CFSTR("private/tmp/fsevents-test");
+
+	// NOTE: path must not be a symlink.
+	CFStringRef path = CFStringCreateWithCString(
+		kCFAllocatorDefault,
+		managed_preferences_device_relative_path,
+		kCFStringEncodingUTF8
+	);
 	CFArrayRef paths_to_watch = CFArrayCreate(NULL, (const void **)&path, 1, NULL);
-	dev_t device_id = device_for_path("/private/tmp/fsevents-test");
+
+	dev_t device_id = device_for_path(managed_preferences_path);
 	CFAbsoluteTime latency = 3.0; // 10.0
- 
+
 	FSEventStreamRef stream = FSEventStreamCreateRelativeToDevice(
 		kCFAllocatorDefault,
 		&fsevents_callback,
@@ -83,6 +228,7 @@ int main() {
 		kFSEventStreamCreateFlagFileEvents | kFSEventStreamCreateFlagIgnoreSelf
 	);
 
+	CFRelease(path);
 	CFRelease(paths_to_watch);
 
 	FSEventStreamSetDispatchQueue(stream, dispatch_get_main_queue());
