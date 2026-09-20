@@ -21,6 +21,7 @@ static char *managed_preferences_chrome_policy_path;
 // Example: "Library/Managed Preferences/<username>/com.google.Chrome.plist"
 static char *managed_preferences_chrome_policy_device_relative_path;
 
+// Build the string "/Library/Managed Preferences/<username>" in `path`.
 void managed_preferences_user_path(char *path, size_t path_size) {
 	char *username = getlogin();
 
@@ -65,6 +66,7 @@ void managed_preferences_user_path(char *path, size_t path_size) {
 	}
 }
 
+// Append "/com.google.Chrome.plist" to `path`.
 void chrome_policy_path(char *path, size_t path_size) {
 	size_t length;
 
@@ -107,22 +109,6 @@ void write_policy_file(char *path) {
 	fclose(f);
 }
 
-/* static void print_flags(FSEventStreamEventFlags flags) { */
-/* 	if (flags & kFSEventStreamEventFlagMustScanSubDirs) printf(" MustScanSubDirs"); */
-/* 	if (flags & kFSEventStreamEventFlagRootChanged)     printf(" RootChanged"); */
-/* 	if (flags & kFSEventStreamEventFlagItemCreated)     printf(" Created"); */
-/* 	if (flags & kFSEventStreamEventFlagItemRemoved)     printf(" Removed"); */
-/* 	if (flags & kFSEventStreamEventFlagItemRenamed)     printf(" Renamed"); */
-/* 	if (flags & kFSEventStreamEventFlagItemModified)    printf(" Modified"); */
-/* 	if (flags & kFSEventStreamEventFlagItemInodeMetaMod)  printf(" InodeMetaMod"); */
-/* 	if (flags & kFSEventStreamEventFlagItemFinderInfoMod) printf(" FinderInfoMod"); */
-/* 	if (flags & kFSEventStreamEventFlagItemChangeOwner) printf(" ChangeOwner"); */
-/* 	if (flags & kFSEventStreamEventFlagItemXattrMod)    printf(" XattrMod"); */
-/* 	if (flags & kFSEventStreamEventFlagItemIsFile)      printf(" IsFile"); */
-/* 	if (flags & kFSEventStreamEventFlagItemIsDir)       printf(" IsDir"); */
-/* 	if (flags & kFSEventStreamEventFlagItemIsSymlink)   printf(" IsSymlink"); */
-/* } */
-
 void fsevents_callback(
 	ConstFSEventStreamRef stream_ref,
 	void *client_call_back_info,
@@ -134,26 +120,6 @@ void fsevents_callback(
 	char **paths = event_paths;
 
 	for (int i = 0; i < num_events; i++) {
-		/* printf("Change %llu in %s, flags %u\n", event_ids[i], paths[i], event_flags[i]); */
-		/* printf("xx %s\n", managed_preferences_chrome_policy_device_relative_path); */
-		/* print_flags(event_flags[i]); */
-		/* if ( */
-		/* 	strncmp( */
-		/* 		paths[i], */
-		/* 		managed_preferences_chrome_policy_device_relative_path, */
-		/* 		strlen(managed_preferences_chrome_policy_device_relative_path) */
-		/* 	) == 0 */
-		/* ) { */
-		/* 	puts("MATCHED"); */
-		/* } */
-		/* if ((event_flags[i] & kFSEventStreamEventFlagItemIsFile) */
-		/* 	&& ( */
-		/* 		(event_flags[i] & kFSEventStreamEventFlagItemRemoved) */
-		/* 		|| (event_flags[i] & kFSEventStreamEventFlagItemRenamed) */
-		/* 	) */
-		/* ) { */
-		/* 	puts("REMOVED++"); */
-		/* } */
 		if (
 			strncmp(
 				paths[i],
@@ -165,10 +131,7 @@ void fsevents_callback(
 				(event_flags[i] & kFSEventStreamEventFlagItemRemoved)
 				|| (event_flags[i] & kFSEventStreamEventFlagItemRenamed)
 			)
-/* kFSEventStreamEventFlagItemIsFile */
-/* kFSEventStreamEventFlagItemRenamed */
 		) {
-			printf("Remove %llu in %s, flags %u\n", event_ids[i], paths[i], event_flags[i]);
 			write_policy_file(managed_preferences_chrome_policy_path);
 		}
 	}
