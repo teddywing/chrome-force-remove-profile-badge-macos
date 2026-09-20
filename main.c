@@ -168,6 +168,8 @@ dev_t device_for_path(const char *path) {
 	return st.st_dev;
 }
 
+// Write the Chrome policy plist on launch, and start an FSEventStream to
+// detect when the file disappears, and write it again at that point.
 int main() {
 	// Build the "Managed Preferences" directory path.
 	char managed_preferences_path[MAXPATHLEN];
