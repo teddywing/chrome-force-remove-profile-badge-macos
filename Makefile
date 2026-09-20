@@ -2,7 +2,8 @@ SOURCES := main.c
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 TARGET := chrome-force-remove-profile-badge-macos
 
-LDFLAGS := -framework CoreServices
+CFLAGS += -Wall -Werror
+LDFLAGS += -framework CoreServices
 
 all: $(TARGET)
 
