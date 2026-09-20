@@ -14,12 +14,22 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
+prefix ?= /usr/local
+exec_prefix ?= $(prefix)
+bindir ?= $(exec_prefix)/bin
+datarootdir ?= $(prefix)/share
+mandir ?= $(datarootdir)/man
+man1dir ?= $(mandir)/man1
+
+
 SOURCES := main.c
 OBJECTS := $(patsubst %.c,%.o,$(wildcard *.c))
 TARGET := chrome-force-remove-profile-badge-macos
 
 CFLAGS += -Wall -Werror
 LDFLAGS += -framework CoreServices
+
+MAN_PAGE := chrome-force-remove-profile-badge-macos.1
 
 all: $(TARGET)
 
@@ -31,3 +41,11 @@ $(TARGET): $(OBJECTS)
 		$(CFLAGS) \
 		$^ \
 		$(LDFLAGS)
+
+.PHONY: install
+install: $(TARGET) $(MAN_PAGE)
+	install -d $(DESTDIR)$(bindir)
+	install -m 755 $(TARGET) $(DESTDIR)$(bindir)
+
+	install -d $(DESTDIR)$(man1dir)
+	install -m 644 $(MAN_PAGE) $(DESTDIR)$(man1dir)
