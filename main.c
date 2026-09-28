@@ -192,7 +192,7 @@ int main(int argc, const char *argv[]) {
 
 	// Build the Chrome policy plist absolute path.
 	char policy_path[MAXPATHLEN];
-	strncpy(policy_path, managed_preferences_path, strlen(managed_preferences_path));
+	strncpy(policy_path, managed_preferences_path, sizeof(managed_preferences_path));
 	chrome_policy_path(policy_path, MAXPATHLEN);
 	managed_preferences_chrome_policy_path = policy_path;
 	managed_preferences_chrome_policy_device_relative_path = policy_path + 1;
