@@ -44,10 +44,14 @@ writes the policy plist whenever it disappears, effectively restoring it.
 ## Usage
 The program can be run manually:
 
-    $ ./chrome-force-remove-profile-badge-macos
+    $ sudo ./chrome-force-remove-profile-badge-macos
 
 To have it run in the background without user intervention, install a launchd
 plist.
+
+The program works by writing a Google Chrome policy plist to `/Library/Managed
+Preferences/<username>/com.google.Chrome.plist`, and as such must be run as
+root.
 
 
 ## Install
