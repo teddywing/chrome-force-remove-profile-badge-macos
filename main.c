@@ -119,6 +119,8 @@ void write_policy_file(char *path) {
 	FILE *f = fopen(path, "w");
 	if (f == NULL) {
 		fprintf(stderr, "error: cannot open file %s\n", path);
+/* error: cannot open file /Library/Managed Preferences/root/com.google.Chrome.plist */
+// TODO: Fix Managed Preferences path has "root" user name instead of current user name when running from "/Library/LaunchDaemons/".
 		exit(EX_IOERR);
 	}
 
