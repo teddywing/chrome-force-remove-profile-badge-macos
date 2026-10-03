@@ -15,9 +15,9 @@
 
 
 #include <CoreServices/CoreServices.h>
+#include <pwd.h>
 #include <sys/stat.h>
 #include <sysexits.h>
-#include <unistd.h>
 
 static const char *kVersion = "0.0.1";
 
@@ -39,10 +39,39 @@ static char *managed_preferences_chrome_policy_path;
 // Example: "Library/Managed Preferences/<username>/com.google.Chrome.plist"
 static char *managed_preferences_chrome_policy_device_relative_path;
 
-// Build the string "/Library/Managed Preferences/<username>" in `path`.
-void managed_preferences_user_path(char *path, size_t path_size) {
-	char *username = getlogin();
+// Get the username of the current GUI user.
+//
+// Gets the login user's username even when the program is run by a different
+// user, e.g. "root".
+//
+// References:
+// https://superuser.com/questions/180819/how-can-you-find-out-the-currently-logged-in-user-in-the-os-x-gui/180845#180845
+// https://stackoverflow.com/questions/15775241/how-to-get-macosx-logged-in-users-user-id-in-objective-c/40469354#40469354
+char *gui_username() {
+	const char *dev_console_path = "/dev/console";
 
+	struct stat st;
+	int err = lstat(dev_console_path, &st);
+	if (err != noErr) {
+		fprintf(
+			stderr,
+			"error: cannot stat '%s', cannot get login username\n",
+			dev_console_path
+		);
+		exit(EX_IOERR);
+	}
+
+	struct passwd *p = getpwuid(st.st_uid);
+
+	return p->pw_name;
+}
+
+// Build the string "/Library/Managed Preferences/<username>" in `path`.
+void managed_preferences_user_path(
+	char *username,
+	char *path,
+	size_t path_size
+) {
 	size_t length;
 
 	length = strlcat(path, kManagedPreferencesPath, path_size);
@@ -119,8 +148,6 @@ void write_policy_file(char *path) {
 	FILE *f = fopen(path, "w");
 	if (f == NULL) {
 		fprintf(stderr, "error: cannot open file %s\n", path);
-/* error: cannot open file /Library/Managed Preferences/root/com.google.Chrome.plist */
-// TODO: Fix Managed Preferences path has "root" user name instead of current user name when running from "/Library/LaunchDaemons/".
 		exit(EX_IOERR);
 	}
 
@@ -187,9 +214,25 @@ int main(int argc, const char *argv[]) {
 		return EXIT_SUCCESS;
 	}
 
+	// Build the Managed Preferences path using the current GUI user's username.
+	//
+	// The Managed Preferences path includes a directory that has the name of
+	// the current user.
+	//
+	// In order to write to the Managed Preferences path, though, this program
+	// must be run with administrator permissions, as the path is owned by
+	// 'root'.
+	//
+	// If the program is run by a LaunchDaemon in "/Library/LaunchDaemons/", it
+	// is run by "root". Getting the current user's username with `getlogin()`
+	// then returns "root", rather than the logged in user's. We need to obtain
+	// the logged in username to put the Chrome policy file in the correct
+	// location.
+	char *username = gui_username();
+
 	// Build the "Managed Preferences" directory path.
 	char managed_preferences_path[MAXPATHLEN] = "";
-	managed_preferences_user_path(managed_preferences_path, MAXPATHLEN);
+	managed_preferences_user_path(username, managed_preferences_path, MAXPATHLEN);
 	char *managed_preferences_device_relative_path = managed_preferences_path + 1;
 
 	// Build the Chrome policy plist absolute path.
@@ -198,6 +241,9 @@ int main(int argc, const char *argv[]) {
 	chrome_policy_path(policy_path, MAXPATHLEN);
 	managed_preferences_chrome_policy_path = policy_path;
 	managed_preferences_chrome_policy_device_relative_path = policy_path + 1;
+
+	// TODO: Remove this test
+	fprintf(stderr, "path: '%s'\n", managed_preferences_chrome_policy_path);
 
 	// Ensure the Chrome policy plist file is written and present.
 	write_policy_file(managed_preferences_chrome_policy_path);
