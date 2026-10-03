@@ -262,7 +262,7 @@ int main(int argc, const char *argv[]) {
 	CFArrayRef paths_to_watch = CFArrayCreate(NULL, (const void **)&path, 1, NULL);
 
 	dev_t device_id = device_for_path(managed_preferences_path);
-	CFAbsoluteTime latency = 3.0; // 10.0 TODO
+	CFAbsoluteTime latency = 15.0;
 
 	FSEventStreamRef stream = FSEventStreamCreateRelativeToDevice(
 		kCFAllocatorDefault,
