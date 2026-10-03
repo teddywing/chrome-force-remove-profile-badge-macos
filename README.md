@@ -7,9 +7,13 @@ the avatar in the toolbar for profiles signed in with Google Workspace accounts.
 The badge reads “Work” in English, and is localised, causing it to be even wider
 in other languages.
 
-TODO
-[image-en]
-[image-fr]
+English:
+
+![Google Chrome work profile badge (English)](./Screenshots/google-chrome-work-badge-en.png)
+
+French:
+
+![Google Chrome work profile badge (French)](./Screenshots/google-chrome-work-badge-fr.png)
 
 The avatar alone is enough to distinguish which profile the window belongs to,
 meaning the enterprise badge is not only redundant, but also steals an offensive
