@@ -50,8 +50,8 @@ To have it run in the background without user intervention, install a launchd
 plist.
 
 The program works by writing a Google Chrome policy plist to `/Library/Managed
-Preferences/<username>/com.google.Chrome.plist`, and as such must be run as
-root.
+Preferences/<username>/com.google.Chrome.plist`, and as such must be run as an
+administrator.
 
 
 ## Install
