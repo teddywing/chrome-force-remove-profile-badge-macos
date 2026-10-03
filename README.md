@@ -62,6 +62,7 @@ administrator.
 The program can be installed with Homebrew:
 
 	$ brew install teddywing/formulae/chrome-force-remove-profile-badge-macos
+	$ sudo brew services start teddywing/formulae/chrome-force-remove-profile-badge-macos
 
 
 ## Build
