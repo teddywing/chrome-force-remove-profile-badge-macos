@@ -242,9 +242,6 @@ int main(int argc, const char *argv[]) {
 	managed_preferences_chrome_policy_path = policy_path;
 	managed_preferences_chrome_policy_device_relative_path = policy_path + 1;
 
-	// TODO: Remove this test
-	fprintf(stderr, "path: '%s'\n", managed_preferences_chrome_policy_path);
-
 	// Ensure the Chrome policy plist file is written and present.
 	write_policy_file(managed_preferences_chrome_policy_path);
 
